@@ -31,7 +31,7 @@ describe('copy trading engine', () => {
 
   it('rounds quantities down to exchange step size', () => {
     expect(roundDownToStep(0.1239, 0.001)).toBe(0.123);
-    expect(roundDownToStep(5.678, 0.1)).toBe(5.6000000000000005);
+    expect(roundDownToStep(5.678, 0.1)).toBe(5.6);
   });
 
   it('creates an accepted copied order with proportional quantity and margin', () => {
@@ -59,5 +59,32 @@ describe('copy trading engine', () => {
     const order = buildCopiedOrder(trade, lowBalanceFollower);
     expect(order.status).toBe('REJECTED');
     expect(order.rejectionReason).toContain('margin');
+  });
+
+  it('rejects trades with zero leverage', () => {
+    const order = buildCopiedOrder(
+      { ...trade, leverage: 0 },
+      follower
+    );
+
+    expect(order.status).toBe('REJECTED');
+    expect(order.rejectionReason).toBe('Invalid leverage');
+    expect(order.marginRequired).toBe(0);
+  });
+
+  it('rejects trades with negative leverage', () => {
+    const order = buildCopiedOrder(
+      { ...trade, leverage: -1 },
+      follower
+    );
+
+    expect(order.status).toBe('REJECTED');
+    expect(order.rejectionReason).toBe('Invalid leverage');
+  });
+
+  it('rejects trades where the symbol is not allowed', () => {
+    const order = buildCopiedOrder({ ...trade, symbol: 'SOLUSDT' }, follower);
+    expect(order.status).toBe('REJECTED');
+    expect(order.rejectionReason).toContain('Symbol');
   });
 });

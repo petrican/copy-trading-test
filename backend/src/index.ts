@@ -21,18 +21,53 @@ app.get('/api/leader-trades', (_req, res) => res.json(leaderTrades));
 app.get('/api/followers', (_req, res) => res.json(followers));
 
 app.post('/api/simulate-copy', (req, res) => {
-  const parsed = tradeSchema.safeParse(req.body);
-  if (!parsed.success) {
-    return res.status(400).json({ error: parsed.error.flatten() });
+  const requestId = `sim_${Date.now()}`;
+
+  try {
+    const parsed = tradeSchema.safeParse(req.body);
+
+    if (!parsed.success) {
+      return res.status(400).json({
+        requestId,
+        error: {
+          code: 'INVALID_REQUEST',
+          details: parsed.error.flatten()
+        }
+      });
+    }
+
+    const trade: LeaderTrade = {
+      id: `lt_${Date.now()}`,
+      timestamp: new Date().toISOString(),
+      ...parsed.data
+    };
+
+    const orders = buildOrdersForTrade(trade, followers);
+
+    const summary = orders.reduce(
+      (acc, o) => {
+        acc.total += 1;
+        acc[o.status === 'ACCEPTED' ? 'accepted' : 'rejected'] += 1;
+        return acc;
+      },
+      { total: 0, accepted: 0, rejected: 0 }
+    );
+
+    return res.json({
+      requestId,
+      trade,
+      summary,
+      orders
+    });
+
+  } catch (err) {
+    return res.status(500).json({
+      error: {
+        code: 'INTERNAL_ERROR',
+        message: 'Unexpected server error'
+      }
+    });
   }
-
-  const trade: LeaderTrade = {
-    id: `lt_${Date.now()}`,
-    timestamp: new Date().toISOString(),
-    ...parsed.data
-  };
-
-  return res.json({ trade, orders: buildOrdersForTrade(trade, followers) });
 });
 
 const port = Number(process.env.PORT ?? 4000);

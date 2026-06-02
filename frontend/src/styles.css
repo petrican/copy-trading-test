@@ -42,6 +42,82 @@ small { display: block; margin-top: 6px; color: #94a3b8; max-width: 220px; }
 .table-card { overflow-x: auto; }
 .table-card table { min-width: 760px; }
 
+.summary-card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.summary-topline {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.badge {
+  flex: 1;
+  min-width: 140px;
+  padding: 12px;
+  border-radius: 10px;
+  background: #111;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.badge .label {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.badge .value {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.badge.total {
+  border: 1px solid #333;
+}
+
+.badge.accepted {
+  border: 1px solid #1f7a4a;
+}
+
+.badge.rejected {
+  border: 1px solid #7a1f1f;
+}
+
+.summary-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.metric {
+  background: #0f0f0f;
+  padding: 12px;
+  border-radius: 10px;
+}
+
+.metric-label {
+  font-size: 12px;
+  opacity: 0.6;
+}
+
+.metric-value {
+  font-size: 16px;
+  font-weight: 600;
+  margin-top: 4px;
+  display: block;
+}
+
+.summary-footer {
+  font-size: 13px;
+  opacity: 0.8;
+  padding-top: 8px;
+  border-top: 1px solid #222;
+}
+
 @media (max-width: 1100px) {
   .grid { grid-template-columns: 320px 1fr; }
   .followers { grid-template-columns: repeat(2, 1fr); }
